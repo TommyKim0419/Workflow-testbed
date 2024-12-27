@@ -49,9 +49,16 @@ jobs:
           echo "Modules to test: $MODULES_TO_TEST"
           echo "MODULES_TO_TEST=$MODULES_TO_TEST" >> $GITHUB_ENV
 
-      - name: Build and Test
-        if: env.MODULES_TO_TEST != ""
-        run: ./gradlew $MODULES_TO_TEST --stacktrace
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        env:
+          GRADLE_USER_HOME: ./.gradle-home
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+          arguments: |
+            ${{ steps.detect-modules.outputs.modules_to_test }}
+            --stacktrace
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
