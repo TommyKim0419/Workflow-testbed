@@ -1,4 +1,4 @@
-name: PullRequest 파이프라인
+name: PullRequest Pipeline
 
 on:
   pull_request:
@@ -45,13 +45,15 @@ jobs:
             MODULES_TO_TEST="$MODULES_TO_TEST :moduleB:test"
           fi
 
-          # 테스트 대상 모듈 출력
+          # 테스트 대상 모듈 출력 및 output으로 전달
           echo "Modules to test: $MODULES_TO_TEST"
-          echo "MODULES_TO_TEST=$MODULES_TO_TEST" >> $GITHUB_ENV
+          echo "::set-output name=modules_to_test::$MODULES_TO_TEST"
+        outputs:
+          modules_to_test: ${{ steps.detect-modules.outputs.modules_to_test }}
 
       - name: Build and Test
-        if: env.MODULES_TO_TEST != ""
-        run: ./gradlew $MODULES_TO_TEST --stacktrace
+        if: steps.detect-modules.outputs.modules_to_test != ''
+        run: ./gradlew ${{ steps.detect-modules.outputs.modules_to_test }} --stacktrace
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
