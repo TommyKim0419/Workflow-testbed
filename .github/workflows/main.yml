@@ -12,9 +12,6 @@ jobs:
     env:
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
-    outputs:
-      modules_to_test: ${{ steps.detect-modules.outputs.modules_to_test }}
-
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -48,11 +45,11 @@ jobs:
             MODULES_TO_TEST="$MODULES_TO_TEST :moduleB:test"
           fi
 
-          # 테스트 대상 모듈 출력 및 output으로 전달
+          # 테스트 대상 모듈 출력
           echo "Modules to test: $MODULES_TO_TEST"
+
+          # 테스트 대상 모듈을 GitHub Actions의 outputs에 설정
           echo "::set-output name=modules_to_test::$MODULES_TO_TEST"
-        outputs:
-          modules_to_test: ${{ steps.detect-modules.outputs.modules_to_test }}
 
       - name: Build and Test
         if: ${{ steps.detect-modules.outputs.modules_to_test != '' }}
