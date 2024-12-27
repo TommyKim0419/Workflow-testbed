@@ -37,22 +37,20 @@ jobs:
           echo "Changed files: $CHANGED_FILES"
 
           # 변경된 모듈에 따라 테스트 대상 설정
-          MODULES_TO_TEST=""
+          MODULE_PATH=""
           if echo "$CHANGED_FILES" | grep -q '^moduleA/'; then
-            MODULES_TO_TEST="$MODULES_TO_TEST :moduleA:test"
+            MODULE_PATH="moduleA"
           fi
           if echo "$CHANGED_FILES" | grep -q '^moduleB/'; then
-            MODULES_TO_TEST="$MODULES_TO_TEST :moduleB:test"
+            MODULE_PATH="moduleB"
           fi
-
-          # 테스트 대상 모듈 출력
-          echo "Modules to test: $MODULES_TO_TEST"
-
-          # 테스트 대상 모듈을 GitHub Actions의 outputs에 설정
-          echo "::set-output name=modules_to_test::$MODULES_TO_TEST"
-
+          
+          # 모듈 경로 출력 및 GitHub Actions output 설정
+          echo "Module path to test: $MODULE_PATH"
+          echo "::set-output name=module_path::$MODULE_PATH"
 
       - name: Build with Gradle
+        if: ${{ steps.detect-modules.outputs.module_path != '' }}
         uses: gradle/gradle-build-action@v2
         env:
           GRADLE_USER_HOME: ./.gradle-home
@@ -60,7 +58,7 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
           arguments: |
-            ${{ steps.detect-modules.outputs.modules_to_test }}
+            -p ${{ steps.detect-modules.outputs.module_path }} test
             --stacktrace
 
       - name: Publish Unit Test Results
