@@ -12,6 +12,9 @@ jobs:
     env:
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
+    outputs:
+      modules_to_test: ${{ steps.detect-modules.outputs.modules_to_test }}
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -52,7 +55,7 @@ jobs:
           modules_to_test: ${{ steps.detect-modules.outputs.modules_to_test }}
 
       - name: Build and Test
-        if: steps.detect-modules.outputs.modules_to_test != ''
+        if: ${{ steps.detect-modules.outputs.modules_to_test != '' }}
         run: ./gradlew ${{ steps.detect-modules.outputs.modules_to_test }} --stacktrace
 
       - name: Publish Unit Test Results
