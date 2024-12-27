@@ -51,9 +51,17 @@ jobs:
           # 테스트 대상 모듈을 GitHub Actions의 outputs에 설정
           echo "::set-output name=modules_to_test::$MODULES_TO_TEST"
 
-      - name: Build and Test
-        if: ${{ steps.detect-modules.outputs.modules_to_test != '' }}
-        run: ./gradlew ${{ steps.detect-modules.outputs.modules_to_test }} --stacktrace
+
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        env:
+          GRADLE_USER_HOME: ./.gradle-home
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+          arguments: |
+            ${{ steps.detect-modules.outputs.modules_to_test }}
+            --stacktrace
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
