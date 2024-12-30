@@ -44,7 +44,7 @@ jobs:
           if echo "$CHANGED_FILES" | grep -q '^moduleB/'; then
             MODULE_PATHS="${MODULE_PATHS} moduleB"
           fi
-
+          
           # 모듈 경로 출력 및 GitHub Actions output 설정
           MODULE_PATHS=$(echo $MODULE_PATHS | xargs)
           echo "Modules to test: $MODULE_PATHS"
