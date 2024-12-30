@@ -10,4 +10,5 @@ public class ModuleAApplication {
         SpringApplication.run(ModuleAApplication.class, args);
     }
 
+    // some things changed...
 }
