@@ -37,26 +37,31 @@ jobs:
           echo "Changed files: $CHANGED_FILES"
 
           # 변경된 모듈에 따라 테스트 대상 설정
-          MODULE_PATH=""
+          MODULE_PATHS=""
           if echo "$CHANGED_FILES" | grep -q '^moduleA/'; then
-            MODULE_PATH="moduleA"
+            MODULE_PATHS="${MODULE_PATHS} moduleA"
           fi
           if echo "$CHANGED_FILES" | grep -q '^moduleB/'; then
-            MODULE_PATH="moduleB"
+            MODULE_PATH="${MODULE_PATHS} moduleB"
           fi
 
           # 모듈 경로 출력 및 GitHub Actions output 설정
-          echo "Module path to test: $MODULE_PATH"
-          echo "::set-output name=module_path::$MODULE_PATH"
+          MODULE_PATHS=$(echo $MODULE_PATHS | xargs)
+          echo "Modules to test: $MODULE_PATHS"
+          echo "module_paths=$MODULE_PATHS" >> $GITHUB_ENV
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
       - name: Build with Gradle
-        if: ${{ steps.detect-modules.outputs.module_path != '' }}
-        uses: gradle/gradle-build-action@v2
+        run: |
+          if [-n $module_paths" ]; then
+            for MODULE in $module_paths; do
+              echo "Running tests for $MODULE
+              ./gradlew -p $MODULE test --stacktrace
+            done
+          else
+            echo "No modules to test."
+          fi
         env:
           GRADLE_USER_HOME: ./.gradle-home
-        with:
-          gradle-version: wrapper
-          cache-read-only: true
-          arguments: |
-            -p ${{ steps.detect-modules.outputs.module_path }} test
-            --stacktrace
